@@ -4,6 +4,8 @@
 
 ## 📋 Table of Contents
 
+- [How to Run Everything](#how-to-run-everything)
+- [Prometheus Queries](#prometheus-queries)
 - [Project Overview](#project-overview)
 - [Architecture](#architecture)
 - [Technology Stack](#technology-stack)
@@ -17,6 +19,151 @@
 - [CI/CD Pipeline](#cicd-pipeline)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
+
+## 🚀 How to Run Everything
+
+### Quick Start Commands
+
+#### 1. Start the FastAPI Backend
+```bash
+# Activate your virtual environment
+source venv/bin/activate  # On macOS/Linux
+# venv\Scripts\activate   # On Windows
+
+# Run the FastAPI server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### 2. Start Monitoring Stack (Docker)
+```bash
+# Start all monitoring services (Prometheus, Grafana, MLflow)
+docker compose up -d
+
+# Check if services are running
+docker compose ps
+
+# View logs
+docker compose logs -f grafana
+docker compose logs -f prometheus
+```
+
+#### 3. Stop and Restart Services
+```bash
+# Stop all Docker services
+docker compose down
+
+# Stop and remove volumes (complete reset)
+docker compose down -v
+
+# Restart all services
+docker compose up -d --build
+```
+
+#### 4. Generate Metrics Data
+```bash
+# Generate sample predictions to populate metrics
+python generate_metrics.py
+
+# For continuous data generation
+python continuous_metrics.py
+```
+
+#### 5. Access Services
+- **FastAPI API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs  
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin/admin)
+- **MLflow**: http://localhost:5000
+
+---
+
+## 📊 Prometheus Queries
+
+Use these queries in Prometheus (http://localhost:9090) to monitor your churn prediction system:
+
+### Basic Metrics
+```promql
+# Total number of predictions made
+sum(churn_predictions_total)
+
+# Current high-risk customers count  
+churn_high_risk_customers
+
+# All predictions with labels
+churn_predictions_total
+
+# Predictions by result type
+churn_predictions_total{prediction="Yes"}
+churn_predictions_total{prediction="No"}
+
+# Predictions by risk level
+churn_predictions_total{risk_level="Low"}
+churn_predictions_total{risk_level="Medium"}
+churn_predictions_total{risk_level="High"}
+```
+
+### Performance Metrics
+```promql
+# Total HTTP requests to prediction endpoint
+sum(http_requests_total{handler="/predict"})
+
+# API request rate per second (over 5 minutes)
+rate(http_requests_total[5m])
+
+# Average prediction latency
+churn_prediction_latency_seconds_sum / churn_prediction_latency_seconds_count
+
+# 95th percentile response time
+histogram_quantile(0.95, http_request_duration_seconds_bucket)
+```
+
+### Advanced Analytics
+```promql
+# Prediction rate per minute (requires time-series data)
+rate(churn_predictions_total[5m]) * 60
+
+# Percentage of high-risk predictions
+(churn_predictions_total{risk_level="High"} / sum(churn_predictions_total)) * 100
+
+# Ratio of No to Yes predictions
+churn_predictions_total{prediction="No"} / churn_predictions_total{prediction="Yes"}
+
+# Group predictions by risk level
+sum by (risk_level) (churn_predictions_total)
+
+# Group predictions by result type
+sum by (prediction) (churn_predictions_total)
+```
+
+### System Monitoring
+```promql
+# Process memory usage
+process_resident_memory_bytes
+
+# Process CPU usage
+rate(process_cpu_seconds_total[5m])
+
+# Open file descriptors
+process_open_fds
+
+# Python garbage collection
+python_gc_collections_total
+```
+
+### Grafana Dashboard Queries
+**For Single Stat Panels:**
+- `sum(churn_predictions_total)` - Total Predictions Counter
+- `churn_high_risk_customers` - High Risk Customers Gauge
+
+**For Pie Charts:**
+- `churn_predictions_total` with legend `{{prediction}}` - Predictions by Type
+- `churn_predictions_total` with legend `{{risk_level}}` - Risk Level Distribution
+
+**For Time Series (requires continuous data):**
+- `rate(churn_predictions_total[5m])` - Prediction Rate Over Time
+- `rate(http_requests_total{handler="/predict"}[5m])` - API Request Rate
+
+---
 
 ## 🎯 Project Overview
 
