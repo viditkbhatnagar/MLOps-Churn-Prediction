@@ -12,6 +12,7 @@ import statistics
 
 API_URL = "http://localhost:8000"
 
+
 def generate_random_customer():
     """Generate random customer data for testing"""
     return {
@@ -31,10 +32,13 @@ def generate_random_customer():
         "StreamingMovies": random.choice(["Yes", "No", "No internet service"]),
         "Contract": random.choice(["Month-to-month", "One year", "Two year"]),
         "PaperlessBilling": random.choice(["Yes", "No"]),
-        "PaymentMethod": random.choice(["Electronic check", "Mailed check", "Bank transfer", "Credit card"]),
+        "PaymentMethod": random.choice(
+            ["Electronic check", "Mailed check", "Bank transfer", "Credit card"]
+        ),
         "MonthlyCharges": round(random.uniform(20, 120), 2),
-        "TotalCharges": round(random.uniform(20, 8000), 2)
+        "TotalCharges": round(random.uniform(20, 8000), 2),
     }
+
 
 def make_prediction():
     """Make a single prediction request"""
@@ -43,10 +47,10 @@ def make_prediction():
         response = requests.post(
             f"{API_URL}/predict",
             json=generate_random_customer(),
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
         elapsed_time = time.time() - start_time
-        
+
         if response.status_code == 200:
             return True, elapsed_time
         else:
@@ -54,33 +58,39 @@ def make_prediction():
     except Exception as e:
         return False, time.time() - start_time
 
+
 def load_test(num_requests=100, num_workers=10):
     """Run load test"""
-    print(f"Starting load test with {num_requests} requests using {num_workers} workers...")
-    
+    print(
+        f"Starting load test with {num_requests} requests using {num_workers} workers..."
+    )
+
     success_count = 0
     response_times = []
-    
+
     with ThreadPoolExecutor(max_workers=num_workers) as executor:
         futures = [executor.submit(make_prediction) for _ in range(num_requests)]
-        
+
         for future in as_completed(futures):
             success, elapsed_time = future.result()
             if success:
                 success_count += 1
             response_times.append(elapsed_time)
-    
+
     # Calculate statistics
     success_rate = (success_count / num_requests) * 100
     avg_response_time = statistics.mean(response_times)
-    p95_response_time = statistics.quantiles(response_times, n=20)[18]  # 95th percentile
-    
+    p95_response_time = statistics.quantiles(response_times, n=20)[
+        18
+    ]  # 95th percentile
+
     print(f"\nLoad Test Results:")
     print(f"Total Requests: {num_requests}")
     print(f"Successful Requests: {success_count}")
     print(f"Success Rate: {success_rate:.2f}%")
     print(f"Average Response Time: {avg_response_time:.3f}s")
     print(f"95th Percentile Response Time: {p95_response_time:.3f}s")
+
 
 if __name__ == "__main__":
     # Check if API is running
