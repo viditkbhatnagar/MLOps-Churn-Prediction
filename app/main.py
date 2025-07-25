@@ -1,21 +1,22 @@
 # app/main.py
 
+import logging
+import time
+import uuid
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
-import time
-import logging
-from contextlib import asynccontextmanager
-import uuid
 
+from .model import predictor
 from .schema import (
-    CustomerData,
-    PredictionResponse,
     BatchPredictionRequest,
     BatchPredictionResponse,
+    CustomerData,
     HealthResponse,
+    PredictionResponse,
 )
-from .model import predictor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -58,7 +59,7 @@ instrumentator = Instrumentator()
 instrumentator.instrument(app).expose(app)
 
 # Custom metrics
-from prometheus_client import Counter, Histogram, Gauge
+from prometheus_client import Counter, Gauge, Histogram
 
 prediction_counter = Counter(
     "churn_predictions_total",

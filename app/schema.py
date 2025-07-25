@@ -1,7 +1,8 @@
 # app/schema.py
 
+from typing import List, Optional
+
 from pydantic import BaseModel, Field, validator
-from typing import Optional, List
 
 
 class CustomerData(BaseModel):

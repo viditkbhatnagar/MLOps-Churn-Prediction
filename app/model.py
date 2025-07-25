@@ -1,11 +1,12 @@
 # app/model.py
 
-import joblib
-import pandas as pd
-import numpy as np
-from typing import Dict, List, Tuple
 import logging
 from pathlib import Path
+from typing import Dict, List, Tuple
+
+import joblib
+import numpy as np
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
