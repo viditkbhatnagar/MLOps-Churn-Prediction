@@ -108,11 +108,11 @@ async def predict(customer: CustomerData):
     """Make churn prediction for a single customer"""
     start_time = time.time()
 
-    try:
-        # Check if model is loaded
-        if predictor.model is None:
-            raise HTTPException(status_code=503, detail="Model not loaded")
+    # Check if model is loaded
+    if predictor.model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
 
+    try:
         # Make prediction
         probability, prediction, confidence, risk_level = predictor.predict(
             customer.dict()
@@ -148,11 +148,11 @@ async def batch_predict(request: BatchPredictionRequest):
     """Make churn predictions for multiple customers"""
     start_time = time.time()
 
-    try:
-        # Check if model is loaded
-        if predictor.model is None:
-            raise HTTPException(status_code=503, detail="Model not loaded")
+    # Check if model is loaded
+    if predictor.model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
 
+    try:
         # Convert customers to dict format
         customers_data = [customer.dict() for customer in request.customers]
 

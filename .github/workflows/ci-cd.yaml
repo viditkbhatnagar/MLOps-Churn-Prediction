@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  security-events: write
+
 env:
   DOCKER_IMAGE: churn-prediction-api
   PYTHON_VERSION: '3.10'
@@ -64,7 +68,7 @@ jobs:
       
       - name: Run unit tests
         run: |
-          pytest tests/ -v --cov=app --cov-report=xml --cov-report=html
+          PYTHONPATH=$PWD pytest tests/ -v --cov=app --cov-report=xml --cov-report=html
       
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
