@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import Counter, Gauge, Histogram
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from .model import predictor
@@ -59,8 +60,6 @@ instrumentator = Instrumentator()
 instrumentator.instrument(app).expose(app)
 
 # Custom metrics
-from prometheus_client import Counter, Gauge, Histogram
-
 prediction_counter = Counter(
     "churn_predictions_total",
     "Total number of churn predictions",
